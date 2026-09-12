@@ -1,0 +1,4 @@
+# 运行时生成/本地数据，不进仓库
+__pycache__/
+*.pyc
+memory.json
