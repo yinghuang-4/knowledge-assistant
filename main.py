@@ -11,6 +11,7 @@ import os
 import json
 import datetime
 import sys
+import obs 
 MEMORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "memory.json")
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "chroma_db")
 
@@ -52,7 +53,7 @@ def trim_history(messages,keep_num=10):
     while window and window[0].type == "tool":
         window=window[1:]
     return system + window
-#检索函数
+#向量函数
 def embed(text):
     response = embed_client.embeddings.create(
         model="embedding-3",
@@ -60,11 +61,13 @@ def embed(text):
     )
     return response.data[0].embedding
 
+#检索函数
 def search_knowledge(query):
     chroma_client = chromadb.PersistentClient(path=DB_PATH)
     collection = chroma_client.get_or_create_collection(name="kb_notes")
     v = embed(query)
     results = collection.query(query_embeddings=[v], n_results=5)
+    obs.record_retrieval(results["ids"][0], results["documents"][0])
     if not results["documents"][0]:  # ← 添加
         return "未找到相关资料"
     return "\n".join(results["documents"][0])
@@ -105,7 +108,9 @@ async def llm_node(state):
     resp = LLM.chat.completions.create(
         model="deepseek-chat",
         messages=conv,
-        tools=OPENAI_TOOLS)
+        tools=OPENAI_TOOLS,
+        temperature=float(os.environ.get("LLM_TEMPERATURE", 1.0)),)
+    obs.record_usage(resp.usage.prompt_tokens, resp.usage.completion_tokens)
     return {"messages": [resp.choices[0].message.model_dump()]}
 
 async def tool_node(state):
@@ -127,6 +132,7 @@ async def tool_node(state):
             "tool_call_id": call["id"],
             "content": content,
         })
+        obs.record_tool_call()
     return {"messages": tool_msgs}
 
 #工具路由加ReAct循环

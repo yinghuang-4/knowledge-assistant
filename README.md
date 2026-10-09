@@ -21,6 +21,20 @@ uvicorn server:app #|——REPL 与网页任选其一
 # 技术栈
 LangGraph / Chroma / FastMCP / FastAPI / React
 
+# 评测：怎么知道它变好了
+20 题评测集 + 五个运行指标 + 一条命令出报告，并做过一次**工具集对照实验**（每组 3 轮 × 20 题）：
+
+| | 移除 `pet_care` | 全部工具 |
+|---|---|---|
+| 通过率 | **98.3%** | 80.0% |
+| `recall@k`（主口径） | **100%** | 66.7% |
+| 检索发生率 | **98.3%** | 76.7% |
+| P50 延迟 | 1870 ms | 1518 ms |
+
+机制是**检索发生率上升**（模型改走了 `search_knowledge`），代价是 P50 **+352 ms**。
+
+**详见 [eval/README.md](eval/README.md)** —— 含指标口径、对照实验设计与可复现命令，以及**已知限制**（天花板效应 / 样本量 / 时间混淆）。
+
 # 项目结构
 ```
 知识助手/
@@ -28,9 +42,11 @@ LangGraph / Chroma / FastMCP / FastAPI / React
 ├── server.py        # FastAPI 网页外壳（lifespan 连接 MCP、/chat 接口）
 ├── index.html       # 网页前端（React 单文件，无构建）
 ├── mcp_server.py    # 自建 MCP Server（add 计算 / pet_care 宠物护理，stdio）
-├── notes.txt        # 知识库源文本（7 条，喂给 build_kb.py）
+├── obs.py           # 可观测性钩子（默认关闭零开销；评测时开启，采集检索 id / token / 工具次数）
+├── notes.txt        # 知识库源文本（8 条，喂给 build_kb.py）
 ├── build_kb.py      # 知识库重建脚本：切块 → 向量化 → 写入 Chroma
 ├── chroma_db/       # 向量库（仓库自带，可随时用 build_kb.py 重建）
+├── eval/            # 评测体系：评测集 / 判据引擎 / runner / 报告 / 对照实验 → 见 eval/README.md
 ├── test_core.py     # router 防死循环四用例测试（python test_core.py）
 ├── Spec.md          # 项目设计文档：功能/架构/数据流/验收标准
 └── README.md

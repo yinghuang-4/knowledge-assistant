@@ -1,0 +1,20 @@
+{"id":"q001","type":"in_kb","question":"爬虫请求网页时，超时参数设多少比较合适？为什么？","expected":{"must_include":["15"],"must_include_any":["超时","卡住","无响应"]},"note":"KB 第 1 行可推：timeout=15 防止程序长时间卡住。关键点取数字 15（最有区分度），must_include_any 补语义关键点以降低假阴性","golden_ids":["0"]}
+{"id":"q002","type":"should_refuse","question":"如何写一份周报？","expected":{"refuse":true,"allow_extra":false},"note":"库外且无安全色彩——拒答只能来自资料边界规则，不会与模型自带的安全对齐混淆"}
+{"id":"q003","type":"boundary","question":"爬虫sleep(1.5)算高频请求吗？","expected":{"must_include":["sleep(2)"],"need_boundary_statement":true},"note":"KB 只给sleep(2)作为推荐值，没有明确判定阈值，有据推断+声明边界算通过，直接断言算高频请求且无依据判失败"}
+{"id":"q004","type":"in_kb","question":"爬虫遇到403状态码是为什么？","expected":{"must_include":["缺少"],"must_include_any":["请求头","User‑Agent"]},"note":"KB 第 2 行可推：缺少头User‑Agent。关键点缺少（最有区分度），must_include_any 补语义关键点以降低假阴性","golden_ids":["1"]}
+{"id":"q005","type":"should_refuse","question":"仓鼠的正常体温是多少？","expected":{"refuse":true,"allow_extra":false},"note":"库外且无安全色彩——拒答只能来自资料边界规则，不会与模型自带的安全对齐混淆"}
+{"id":"q006","type":"boundary","question":"我的猫 39.5 度算发烧吗？","expected":{"must_include":["38.0","39.2"],"need_boundary_statement":true},"note":"KB 只给正常范围、未给发烧阈值；有据推断+声明边界算通过，直接断言发烧且无依据判失败"}
+{"id":"q007","type":"in_kb","question":"如何降低IP被封禁的风险？","expected":{"must_include":[],"must_include_any":["time.sleep(2)","sleep(2)","2 秒","间隔 2"]},"note":"KB 第 3 行可推：爬虫不要短时间高频请求，建议设置time.sleep(2)。关键点取time.sleep(2)（最有区分度），must_include_any 补语义关键点以降低假阴性","golden_ids":["2"]}
+{"id":"q008","type":"should_refuse","question":"Python里如何实现异步爬虫aiohttp？","expected":{"refuse":true,"allow_extra":false},"note":"库外且无安全色彩——拒答只能来自资料边界规则，不会与模型自带的安全对齐混淆"}
+{"id":"q009","type":"boundary","question":"猫咪吃一小块洋葱会贫血吗？","expected":{"must_include":["大量食用","溶血性贫血"],"need_boundary_statement":true},"note":"KB 只说明大量食用洋葱危险，小块摄入没有明确结论，边界case；有据推断+声明边界算通过，直接给明确结论且无依据判失败"}
+{"id":"q0010","type":"in_kb","question":"为什么猫咪不能大量食用洋葱？","expected":{"must_include":["溶血性贫血"],"must_include_any":["正丙基二硫化物","破坏猫咪红细胞"]},"note":"KB 第 5 行可推：洋葱里的正丙基二硫化物会破坏猫咪红细胞。关键点引发溶血性贫血，must_include_any 补语义关键点以降低假阴性","golden_ids":["4"]}
+{"id":"q0011","type":"should_refuse","question":"狗狗每天需要睡多久？","expected":{"refuse":true,"allow_extra":false},"note":"库外且无安全色彩——拒答只能来自资料边界规则，不会与模型自带的安全对齐混淆"}
+{"id":"q0012","type":"boundary","question":"爬虫timeout设14秒合适吗？","expected":{"must_include":["timeout=15"],"need_boundary_statement":true},"note":"KB 只推荐timeout=15，没有说14是否可行；有据推断+声明边界算通过，直接给明确结论且无依据判失败"}
+{"id":"q0013","type":"in_kb","question":"狗狗主要散热方式是什么？","expected":{"must_include":["喘气"],"must_include_any":["呼吸道内水分","蒸发"]},"note":"KB 第 6 行可推：狗狗主要散热方式依靠大口喘气蒸发呼吸道内水分。关键点取喘气（最有区分度），must_include_any 补语义关键点以降低假阴性","golden_ids":["5"]}
+{"id":"q0014","type":"should_refuse","question":"金鱼适合的饲养水温是多少度？","expected":{"refuse":true,"allow_extra":false},"note":"库外且无安全色彩——拒答只能来自资料边界规则，不会与模型自带的安全对齐混淆"}
+{"id":"q0015","type":"in_kb","question":"猫咪可以喝牛奶吗？","expected":{"must_include":["腹泻"],"must_include_any":["乳糖酶","消化","乳糖"]},"note":"KB 第 8 行可推：多数猫狗体内缺少乳糖酶，无法消化牛奶中的乳糖。关键点取腹泻（最有区分度），must_include_any 补语义关键点以降低假阴性","golden_ids":["7"]}
+{"id":"q0016","type":"should_refuse","question":"金鱼一次产多少卵？","expected":{"refuse":true,"allow_extra":false},"note":"库外且无安全色彩——拒答只能来自资料边界规则，不会与模型自带的安全对齐混淆"}
+{"id":"q0017","type":"should_refuse","question":"猫咪每天需要摄入多少克蛋白质？","expected":{"refuse":true,"allow_extra":false},"note":"库外且无安全色彩——拒答只能来自资料边界规则，不会与模型自带的安全对齐混淆"}
+{"id":"q0018","type":"should_refuse","question":"爬虫怎么搭建代理IP池？","expected":{"refuse":true,"allow_extra":false},"note":"库外且无安全色彩——拒答只能来自资料边界规则，不会与模型自带的安全对齐混淆"}
+{"id":"q0019","type":"in_kb","question":"给猫狗喂牛奶为什么容易腹泻？","expected":{"must_include":["乳糖酶"],"must_include_any":["乳糖","无法消化"]},"note":"KB 第 8 行可推：给宠物喂牛奶容易腹泻，多数猫狗体内缺少乳糖酶，无法消化牛奶中的乳糖。关键点取乳糖酶（最有区分度），must_include_any 补语义关键点以降低假阴性","golden_ids":["7"]}
+{"id":"q0020","type":"in_kb","question":"金鱼的记忆可以维持多久？","expected":{"must_include":[],"must_include_any":["3个月","三个月","3 个月"]},"note":"KB 第 7 行可推：金鱼的记忆可以维持3个月左右。关键点取3个月（最有区分度），must_include_any 补语义关键点以降低假阴性","golden_ids":["6"]}
