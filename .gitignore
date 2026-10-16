@@ -1,5 +1,6 @@
 # 运行时生成/本地数据，不进仓库
 __pycache__/
 *.pyc
+.pytest_cache/
 memory.json
 资料库/

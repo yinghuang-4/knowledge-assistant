@@ -1,49 +1,44 @@
 """test_core.py：第一层纯函数测试 —— router"""
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 from main import router
+import pytest
 
 # 造一条「带工具调用」的 AI 消息：tool_calls 里 name/args/id 三件套
-def make_tool_call_ai():
-    return AIMessage(content="", tool_calls=[{
-        "name": "add",
-        "args": {"a": 1, "b": 2},
-        "id": "call_1",
-    }])
+@pytest.fixture
+def tool_call_ai():
+    def _make(call_id="call_1"):
+        return AIMessage(content="", tool_calls=[{
+            "name": "add",
+            "args": {"a": 1, "b": 2},
+            "id": call_id,
+        }])
+    return _make
 
-def test_正常结束():
-    msgs = [
-        HumanMessage(content="你好"),
-        AIMessage(content="你好"),
-    ]
-    assert router({"messages": msgs}) == "end"
+def _seq_normal(mk):
+    return [HumanMessage(content="你好"), AIMessage(content="你好")]
 
-def test_继续工具():
-    msgs = [
-        HumanMessage(content="帮我算 1+2"),
-        make_tool_call_ai(),
-    ]
-    assert router({"messages": msgs}) == "tools"   # 空2
+def _seq_tools(mk):
+    return [HumanMessage(content="帮我算 1+2"), mk()]
 
-def test_防死循环():
-    # 本轮已经往返 4 次（4 条 ToolMessage），模型还想继续调工具
+def _seq_rounds4(mk):
     msgs = [HumanMessage(content="帮我算 1+2")]
-    for i in range(4):
-        msgs.append(ToolMessage(content="结果", tool_call_id=f"call_{i}"))
-    msgs.append(make_tool_call_ai())
-    assert router({"messages": msgs}) == "end"   # 空3
+    msgs += [ToolMessage(content="结果", tool_call_id=f"call_{i}") for i in range(4)]
+    msgs.append(mk())
+    return msgs
 
-def test_历史不计入本轮():
-    # 错题 5 的守护测试：历史里有 4 条 tool 消息，但最后一个 human 之后是干净的
+def _seq_history(mk):
     msgs = [HumanMessage(content="第一轮")]
-    for i in range(4):
-        msgs.append(ToolMessage(content="旧结果", tool_call_id=f"old_{i}"))
-    msgs.append(HumanMessage(content="第二轮新问题"))
-    msgs.append(make_tool_call_ai())
-    assert router({"messages": msgs}) == "tools"   # 空4：旧代码（数全历史）会返回 "end"，修好后的代码应该返回？
+    msgs += [ToolMessage(content="旧结果", tool_call_id=f"old_{i}") for i in range(4)]
+    msgs += [HumanMessage(content="第二轮新问题"), mk()]
+    return msgs
 
-if __name__ == "__main__":
-    test_正常结束()
-    test_继续工具()
-    test_防死循环()
-    test_历史不计入本轮()
-    print("全部 PASS")
+
+@pytest.mark.parametrize("build,expected", [
+    pytest.param(_seq_normal,  "end",   id="正常结束"),
+    pytest.param(_seq_tools,   "tools", id="有工具调用→走工具"),
+    pytest.param(_seq_rounds4, "end",   id="超过阈值→强制收工"),
+    pytest.param(_seq_history, "tools", id="历史不计入本轮"),
+])
+def test_router(tool_call_ai, build, expected):
+    assert router({"messages": build(tool_call_ai)}) == expected
+
